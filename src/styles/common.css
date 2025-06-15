@@ -1,0 +1,16 @@
+/* 텍스트 한 줄 넘침 처리 */
+.text-ellipsis-single-line {
+  white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+  overflow: hidden; /* 넘치는 부분 숨김 */
+  text-overflow: ellipsis; /* 넘치는 부분 ...으로 표시 */
+}
+
+/* 필요하다면 여러 줄 넘침 처리 (webkit 브라우저에서만 작동) */
+.text-ellipsis-multi-line {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* 2줄까지 표시하고 넘치면 ... */
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
