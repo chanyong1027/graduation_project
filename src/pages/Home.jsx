@@ -1,7 +1,6 @@
 // import React, { useEffect, useState } from "react";
 // import { Container, Spinner } from "react-bootstrap";
 // import MainCard from "../components/MainCard";
-// import { getBestsellers, getNewReleases } from "../api/aladin";
 // import BestsellerList from "../components/BestsellerList";
 // import NewReleaseList from "../components/NewReleaseList";
 
@@ -71,7 +70,6 @@
 import React, { useEffect, useState } from "react";
 import { Container, Spinner } from "react-bootstrap";
 import MainCard from "../components/MainCard";
-// import { getBestsellers, getNewReleases } from "../api/aladin"; // 🚨 이 줄은 제거합니다.
 import BestsellerList from "../components/BestsellerList";
 import NewReleaseList from "../components/NewReleaseList";
 
