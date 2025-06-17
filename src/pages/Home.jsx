@@ -70,8 +70,8 @@
 import React, { useEffect, useState } from "react";
 import { Container, Spinner } from "react-bootstrap";
 import MainCard from "../components/MainCard";
-//import BestsellerList from "../components/BestsellerList";
-//import NewReleaseList from "../components/NewReleaseList";
+import BestsellerList from "../components/BestSellerList";
+import NewReleaseList from "../components/NewReleaseList";
 
 // ⭐️ 베스트셀러 데이터를 가져오는 함수 (Serverless Function 호출)
 const fetchBestsellers = async () => {
