@@ -17,6 +17,9 @@ import { useAuth } from "../contexts/AuthContext";
 const API_KEY =
   "ad79e8a862abd18051e4d11cc8cd80446c48d9273cd1f9b332292508d9422682";
 
+// 새로운 localStorage 키: 사용자별 선호 도서관 목록
+const LOCAL_STORAGE_PREFERRED_LIBRARIES_KEY_PREFIX = "userPreferredLibraries_";
+
 const MyLibrary = () => {
   const { user, isLoggedIn } = useAuth();
   const currentUserIdentifier = user?.email || null;
@@ -27,19 +30,39 @@ const MyLibrary = () => {
   const [searching, setSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
+  // myLibraries는 이제 currentUserIdentifier에 해당하는 도서관만 관리
   const [myLibraries, setMyLibraries] = useState([]);
   const [activeTab, setActiveTab] = useState("myLibraries");
 
-  useEffect(() => {
-    const storedLibraries = localStorage.getItem("allUserLibraries");
-    if (storedLibraries) {
-      try {
-        setMyLibraries(JSON.parse(storedLibraries));
-      } catch (e) {
-        console.error("Failed to parse allUserLibraries from localStorage", e);
-        localStorage.removeItem("allUserLibraries");
-      }
+  // 현재 로그인된 사용자의 선호 도서관 목록을 불러오는 함수
+  const loadMyLibraries = useCallback(() => {
+    if (!currentUserIdentifier) {
+      setMyLibraries([]);
+      return;
     }
+    try {
+      const storedUserLibs = localStorage.getItem(
+        LOCAL_STORAGE_PREFERRED_LIBRARIES_KEY_PREFIX + currentUserIdentifier
+      );
+      if (storedUserLibs) {
+        setMyLibraries(JSON.parse(storedUserLibs));
+      } else {
+        setMyLibraries([]);
+      }
+    } catch (e) {
+      console.error(
+        "Failed to parse userPreferredLibraries from localStorage",
+        e
+      );
+      localStorage.removeItem(
+        LOCAL_STORAGE_PREFERRED_LIBRARIES_KEY_PREFIX + currentUserIdentifier
+      );
+      setMyLibraries([]);
+    }
+  }, [currentUserIdentifier]);
+
+  useEffect(() => {
+    loadMyLibraries(); // 컴포넌트 마운트 시 또는 사용자 변경 시 내 도서관 불러오기
 
     const resetSignal = localStorage.getItem("myLibraryReset");
     if (resetSignal === "true") {
@@ -51,16 +74,24 @@ const MyLibrary = () => {
       setActiveTab("myLibraries");
       localStorage.removeItem("myLibraryReset");
     }
-  }, []);
+  }, [loadMyLibraries]);
 
+  // myLibraries 상태가 변경될 때마다 localStorage에 저장
   useEffect(() => {
-    localStorage.setItem("allUserLibraries", JSON.stringify(myLibraries));
-  }, [myLibraries]);
+    if (currentUserIdentifier) {
+      localStorage.setItem(
+        LOCAL_STORAGE_PREFERRED_LIBRARIES_KEY_PREFIX + currentUserIdentifier,
+        JSON.stringify(myLibraries)
+      );
+    }
+  }, [myLibraries, currentUserIdentifier]);
 
+  // activeTab 상태를 localStorage에 저장하여 새로고침 시 유지
   useEffect(() => {
     localStorage.setItem("myLibraryActiveTab", activeTab);
   }, [activeTab]);
 
+  // 컴포넌트 마운트 시 localStorage에서 저장된 activeTab 불러오기
   useEffect(() => {
     const storedTab = localStorage.getItem("myLibraryActiveTab");
     if (storedTab && storedTab !== activeTab) {
@@ -108,7 +139,7 @@ const MyLibrary = () => {
     }
 
     let allResults = [];
-    const pageSize = 100;
+    const pageSize = 100; // API 호출 시 한 페이지에 가져올 도서관 수
 
     try {
       for (const dtlRegionCode of dtlRegionCodesToFetch) {
@@ -121,18 +152,22 @@ const MyLibrary = () => {
             const data = await res.json();
             const libs = data.response?.libs || [];
 
-            if (libs.length === 0) break;
+            if (libs.length === 0) break; // 더 이상 데이터가 없으면 루프 종료
             allResults = allResults.concat(libs);
             page++;
 
-            const totalCount = data.response?.numFound;
-            if (allResults.length >= totalCount) break;
+            const totalCount = data.response?.numFound; // 전체 검색결과 건수
+            // 현재까지 가져온 도서관 수가 전체 개수와 같거나 많으면 루프 종료
+            if (totalCount && allResults.length >= totalCount) break;
+
+            // 무한 루프 방지: API 호출 제한 또는 효율성 고려하여 최대 페이지 제한 설정
+            if (page > 50) break; // 예를 들어 최대 50페이지까지만 가져오도록 제한
           } catch (fetchError) {
             console.error(
               `API 호출 실패 (지역: ${region}, 세부지역 코드: ${dtlRegionCode}, 페이지: ${page}):`,
               fetchError
             );
-            break;
+            break; // 오류 발생 시 현재 세부지역 검색 중단
           }
         }
       }
@@ -151,24 +186,16 @@ const MyLibrary = () => {
         return;
       }
 
-      if (
-        myLibraries.some(
-          (lib) =>
-            lib.lib.libCode === libToAdd.lib.libCode &&
-            lib.userIdentifier === currentUserIdentifier
-        )
-      ) {
+      // 현재 사용자의 myLibraries에서 중복 확인 (lib.lib.libCode로 비교)
+      if (myLibraries.some((lib) => lib.lib.libCode === libToAdd.lib.libCode)) {
         alert(`'${libToAdd.lib.libName}'은 이미 내 도서관에 있습니다.`);
         return;
       }
 
-      const libWithUserIdentifier = {
-        ...libToAdd,
-        userIdentifier: currentUserIdentifier,
-      };
-      setMyLibraries((prev) => [...prev, libWithUserIdentifier]);
+      // myLibraries 상태에 추가 (libToAdd는 이미 lib 객체를 포함하고 있음)
+      setMyLibraries((prev) => [...prev, libToAdd]);
       alert(`'${libToAdd.lib.libName}'을 내 도서관에 추가했습니다!`);
-      setActiveTab("myLibraries");
+      setActiveTab("myLibraries"); // 추가 후 '내 도서관' 탭으로 이동
     },
     [myLibraries, isLoggedIn, currentUserIdentifier]
   );
@@ -181,14 +208,9 @@ const MyLibrary = () => {
       }
 
       if (window.confirm("정말 삭제하시겠습니까?")) {
+        // lib.lib.libCode로 필터링 (myLibraries는 이미 현재 사용자 것만 포함)
         setMyLibraries((prev) =>
-          prev.filter(
-            (lib) =>
-              !(
-                lib.lib.libCode === libCodeToRemove &&
-                lib.userIdentifier === currentUserIdentifier
-              )
-          )
+          prev.filter((lib) => lib.lib.libCode !== libCodeToRemove)
         );
         alert("도서관이 삭제되었습니다.");
       }
@@ -196,9 +218,10 @@ const MyLibrary = () => {
     [isLoggedIn, currentUserIdentifier]
   );
 
-  // **** 누락된 handleTabSelect 함수 추가 ****
+  // Tabs 컴포넌트의 onSelect prop에 사용될 함수
   const handleTabSelect = useCallback((k) => {
     setActiveTab(k);
+    // '도서관 검색' 탭으로 이동 시 검색 관련 상태 초기화
     if (k === "search") {
       setRegion("");
       setSubRegion("");
@@ -207,11 +230,9 @@ const MyLibrary = () => {
       setSearching(false);
     }
   }, []);
-  // *****************************************
 
-  const filteredMyLibraries = myLibraries.filter(
-    (lib) => lib.userIdentifier === currentUserIdentifier
-  );
+  // myLibraries 상태는 이미 loadMyLibraries에서 currentUserIdentifier 기준으로 필터링되므로
+  // 별도의 filteredMyLibraries 변수는 필요 없습니다. myLibraries를 직접 사용합니다.
 
   return (
     <Container className="mt-4">
@@ -221,9 +242,9 @@ const MyLibrary = () => {
         <Tab eventKey="myLibraries" title="내 도서관">
           <h5 className="mt-4">내 도서관 목록</h5>
           {isLoggedIn ? (
-            filteredMyLibraries.length > 0 ? (
+            myLibraries.length > 0 ? ( // myLibraries를 직접 사용
               <ListGroup>
-                {filteredMyLibraries.map((libObj) => (
+                {myLibraries.map((libObj) => (
                   <ListGroup.Item
                     key={libObj.lib.libCode}
                     className="d-flex justify-content-between align-items-center"

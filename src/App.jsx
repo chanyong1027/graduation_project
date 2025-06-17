@@ -6,6 +6,7 @@ import SignupPage from "./pages/SignUpPage";
 import Login from "./pages/Login";
 import SearchPage from "./pages/SearchPage";
 import MyLibrary from "./pages/MyLibrary";
+import History from "./pages/History";
 import "./styles/common.css";
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/mylibrary" element={<MyLibrary />} />
+          <Route path="/history" element={<History />} />
         </Route>
       </Routes>
     </Router>
