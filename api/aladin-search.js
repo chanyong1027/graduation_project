@@ -17,11 +17,9 @@ export default async function (req, res) {
       .json({ error: "Required parameter 'query' is missing." });
   }
   if (!TTB_KEY) {
-    return res
-      .status(500)
-      .json({
-        error: "ALADIN_TTB_KEY is not set in Vercel Environment Variables.",
-      });
+    return res.status(500).json({
+      error: "ALADIN_TTB_KEY is not set in Vercel Environment Variables.",
+    });
   }
 
   // Preflight OPTIONS 요청 처리 (CORS)
@@ -67,12 +65,10 @@ export default async function (req, res) {
     res.status(200).json(data); // 성공적인 JSON 응답 반환
   } catch (error) {
     console.error("Aladin Search proxy error:", error);
-    res
-      .status(500)
-      .json({
-        error:
-          "An internal server error occurred while proxying Aladin Search API.",
-        details: error.message,
-      });
+    res.status(500).json({
+      error:
+        "An internal server error occurred while proxying Aladin Search API.",
+      details: error.message,
+    });
   }
 }
