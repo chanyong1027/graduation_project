@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+<<<<<<< HEAD
   // 1. isLoggedIn 상태를 localStorage에서 불러와 초기화합니다.
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     try {
@@ -60,12 +61,30 @@ export const AuthProvider = ({ children }) => {
       "user",
       JSON.stringify({ isLoggedIn: true, userData })
     );
+=======
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(null); // nickname, email 등 포함 가능
+
+  useEffect(() => {
+    const savedNickname = localStorage.getItem("nickname");
+    if (savedNickname) {
+      setIsLoggedIn(true);
+      setUser({ nickname: savedNickname });
+    }
+  }, []);
+
+  const login = (user) => {
+    setIsLoggedIn(true);
+    setUser(user);
+    localStorage.setItem("nickname", user.nickname); // 🔥 이 줄 추가
+>>>>>>> 006c325297d01cc01f41955b9c1496cd26d394b8
   };
 
   const signup = (userInfo) => {
     // 회원가입 시 모든 정보 저장
     setIsLoggedIn(true);
     setUser(userInfo);
+<<<<<<< HEAD
     // 4. signup 시에도 user 정보를 통합하여 저장합니다.
     localStorage.setItem(
       "user",
@@ -73,14 +92,23 @@ export const AuthProvider = ({ children }) => {
     );
     // 기존 token 저장은 유지하거나 제거할 수 있습니다. (필요에 따라)
     localStorage.setItem("token", "mock_token");
+=======
+    localStorage.setItem("token", "mock_token");
+    localStorage.setItem("nickname", userInfo.nickname);
+>>>>>>> 006c325297d01cc01f41955b9c1496cd26d394b8
   };
 
   const logout = () => {
     setIsLoggedIn(false);
     setUser(null);
+<<<<<<< HEAD
     // 5. 로그아웃 시 'user' 키와 'token' 키 모두 제거합니다.
     localStorage.removeItem("user");
     localStorage.removeItem("token"); // 기존 token 제거 유지
+=======
+    localStorage.removeItem("token");
+    localStorage.removeItem("nickname");
+>>>>>>> 006c325297d01cc01f41955b9c1496cd26d394b8
   };
 
   return (

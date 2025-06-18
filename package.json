@@ -11,7 +11,10 @@
   },
   "dependencies": {
     "bootstrap": "^5.3.6",
+<<<<<<< HEAD
     "node-fetch": "^3.3.2",
+=======
+>>>>>>> 006c325297d01cc01f41955b9c1496cd26d394b8
     "react": "^19.1.0",
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.1.0",

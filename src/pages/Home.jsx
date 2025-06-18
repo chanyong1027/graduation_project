@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // import React, { useEffect, useState } from "react";
 // import { Container, Spinner } from "react-bootstrap";
 // import MainCard from "../components/MainCard";
@@ -107,6 +108,15 @@ const fetchNewReleases = async () => {
   }
 };
 
+=======
+import React, { useEffect, useState } from "react";
+import { Container, Spinner } from "react-bootstrap";
+import MainCard from "../components/MainCard";
+import { getBestsellers, getNewReleases } from "../api/aladin";
+import BestsellerList from "../components/BestsellerList";
+import NewReleaseList from "../components/NewReleaseList";
+
+>>>>>>> 006c325297d01cc01f41955b9c1496cd26d394b8
 const Home = () => {
   const [bestsellers, setBestsellers] = useState([]);
   const [newReleases, setNewReleases] = useState([]);
@@ -119,10 +129,16 @@ const Home = () => {
   useEffect(() => {
     const fetchBooks = async () => {
       try {
+<<<<<<< HEAD
         // ⭐️ getBestsellers()와 getNewReleases() 대신 위에서 정의한 함수들을 호출합니다.
         const [bestsellerData, newReleaseData] = await Promise.all([
           fetchBestsellers(),
           fetchNewReleases(),
+=======
+        const [bestsellerData, newReleaseData] = await Promise.all([
+          getBestsellers(),
+          getNewReleases(),
+>>>>>>> 006c325297d01cc01f41955b9c1496cd26d394b8
         ]);
         setBestsellers(bestsellerData);
         setNewReleases(newReleaseData);

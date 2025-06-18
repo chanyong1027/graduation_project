@@ -49,7 +49,11 @@ const Header = () => {
     <Navbar bg="light" expand="lg" className="shadow-sm">
       <Container>
         <Navbar.Brand as={Link} to="/">
+<<<<<<< HEAD
           CheckBook
+=======
+          📚 CheckBook
+>>>>>>> 006c325297d01cc01f41955b9c1496cd26d394b8
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="main-navbar" />
         <Navbar.Collapse id="main-navbar">

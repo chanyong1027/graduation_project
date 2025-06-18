@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Container, Row, Col, Spinner, Pagination } from "react-bootstrap";
 import BookCard from "../components/BookCard";
+<<<<<<< HEAD
 // import { searchBooks } from "../api/Aladin"; // 🚨 이 줄을 제거합니다.
 
 const ITEMS_PER_PAGE = 20;
@@ -32,6 +33,12 @@ const fetchSearchBooks = async (query, maxResults = 20, start = 1) => {
   }
 };
 
+=======
+import { searchBooks } from "../api/Aladin"; // 알맞게 경로 조정
+
+const ITEMS_PER_PAGE = 20;
+
+>>>>>>> 006c325297d01cc01f41955b9c1496cd26d394b8
 const SearchPage = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get("q") || "";
@@ -42,6 +49,7 @@ const SearchPage = () => {
   useEffect(() => {
     if (!query) return;
 
+<<<<<<< HEAD
     const performSearch = async () => {
       // 함수 이름 변경 (fetchBooks 대신)
       setLoading(true);
@@ -60,6 +68,17 @@ const SearchPage = () => {
 
     performSearch(); // performSearch 함수 호출
   }, [query]); // query가 변경될 때마다 검색 실행
+=======
+    const fetchBooks = async () => {
+      setLoading(true);
+      const results = await searchBooks(query, 500); // 최대 500권까지
+      setBooks(results);
+      setLoading(false);
+    };
+
+    fetchBooks();
+  }, [query]);
+>>>>>>> 006c325297d01cc01f41955b9c1496cd26d394b8
 
   const totalPages = Math.ceil(books.length / ITEMS_PER_PAGE);
   const currentBooks = books.slice(
